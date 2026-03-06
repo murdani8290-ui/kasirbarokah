@@ -142,6 +142,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
   .mob-hide{display:none!important}
 }
 
+/* ── UTILITY ── */
+.hidden{display:none!important}
+.mob-only{display:none}
+@media(max-width:768px){.mob-only{display:flex!important}}
+
 /* ── PRINT ── */
 @media print{
   .sidebar,.topbar,.no-print{display:none!important}
@@ -486,8 +491,10 @@ function showPrintAlert(job){
   const alert=document.getElementById('printAlert');
   const bar=document.getElementById('printAlertBar');
   alert.classList.add('show');
-  // Reset bar animasi
-  bar.style.animation='none'; bar.offsetHeight; bar.style.animation='loadBar 10s linear forwards';
+  // Reset bar animasi — Firefox compatible
+  bar.style.animation='none';
+  void bar.offsetWidth;
+  setTimeout(()=>{ bar.style.animation='loadBar 10s linear forwards'; }, 20);
   // Auto dismiss setelah 10s
   setTimeout(()=>dismissPrintAlert(),10500);
 }
@@ -770,8 +777,6 @@ function clearCart(){cart=[];activePromo=null;renderCart();renderProds();updCart
 
 async function checkAutoPromo(){
   const sub=cart.reduce((s,c)=>s+c.harga*c.qty,0);
-  const res=await api('cekPromo',{kode:'__AUTO__',total:sub}); // server akan handle
-  // Karena server tidak handle __AUTO__ via kode, hitung client-side dari promoList
   if(!promoList.length){const pr=await api('getPromo');if(pr.success)promoList=pr.data;}
   const now=new Date();
   let best=null;
